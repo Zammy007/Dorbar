@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>দরবার (Darbar) — Study Materials &amp; Daily Quiz Platform</title>
+    <meta name="description" content="Modern educational resource-sharing and AI-powered daily quiz platform for Class 11 and 12 students." />
+    <meta property="og:title" content="দরবার (Darbar) — Study Materials & Daily Quiz Platform" />
+    <meta property="og:description" content="Everything you need to study smarter, learn better, and stay ahead. Browse Class 11 & 12 subjects, download verified study materials, and take AI-powered daily GK quizzes." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('darbar_theme');
+          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (saved === 'dark' || (!saved && prefersDark)) {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="bg-[#F7F9FC] text-slate-900 dark:bg-[#0B1120] dark:text-slate-100 antialiased selection:bg-teal-600/20 selection:text-teal-900 dark:selection:text-teal-200">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
