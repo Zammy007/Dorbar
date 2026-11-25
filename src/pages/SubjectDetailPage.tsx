@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, Search } from 'lucide-react';
+import { ArrowLeft, Lock, Search, Upload } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import { filterAndSortDocuments } from '../lib/documentLogic';
 import { SubjectIcon } from '../components/SubjectIcon';
@@ -9,8 +9,10 @@ import type { AppRoute, DocumentItem, SubjectItem } from '../types/darbar';
 interface SubjectDetailPageProps {
   slug: string;
   subjects: SubjectItem[];
+  refreshKey?: number;
   onNavigate: (route: AppRoute, param?: string) => void;
   onPreviewDocument: (doc: DocumentItem) => void;
+  onUploadSubject: (subject: SubjectItem) => void;
 }
 
 const RESOURCE_TABS = [
@@ -26,8 +28,10 @@ const RESOURCE_TABS = [
 export function SubjectDetailPage({
   slug,
   subjects,
+  refreshKey = 0,
   onNavigate,
   onPreviewDocument,
+  onUploadSubject,
 }: SubjectDetailPageProps) {
   const [subject, setSubject] = useState<SubjectItem | null>(null);
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
@@ -52,7 +56,7 @@ export function SubjectDetailPage({
         setError(err?.message || 'Could not load subject archive.');
       })
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, [slug, refreshKey]);
 
   const filteredDocs = useMemo(
     () =>
@@ -132,26 +136,38 @@ export function SubjectDetailPage({
           </div>
         </div>
 
-        {/* Switch Subject Dropdown */}
-        <div className="shrink-0">
-          <label
-            htmlFor="switch-subject"
-            className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1"
+        {/* Upload + Switch Subject Controls */}
+        <div className="shrink-0 flex flex-col sm:flex-row sm:items-end gap-3">
+          <div>
+            <label
+              htmlFor="switch-subject"
+              className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1"
+            >
+              Switch Subject
+            </label>
+            <select
+              id="switch-subject"
+              value={subject.slug}
+              onChange={(e) => onNavigate('subject', e.target.value)}
+              className="w-full sm:w-auto px-3.5 py-2.5 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#0B1120] text-slate-900 dark:text-white"
+            >
+              {subjects.map((s) => (
+                <option key={s.id} value={s.slug}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onUploadSubject(subject)}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-lg bg-[#0D9488] text-white hover:bg-[#0F766E] transition-colors whitespace-nowrap"
           >
-            Switch Subject
-          </label>
-          <select
-            id="switch-subject"
-            value={subject.slug}
-            onChange={(e) => onNavigate('subject', e.target.value)}
-            className="px-3.5 py-2.5 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#0B1120] text-slate-900 dark:text-white"
-          >
-            {subjects.map((s) => (
-              <option key={s.id} value={s.slug}>
-                {s.name}
-              </option>
-            ))}
-          </select>
+            <Upload className="w-4 h-4" aria-hidden="true" />
+            <span>Upload</span>
+            <Lock className="w-3.5 h-3.5 opacity-80" aria-hidden="true" />
+          </button>
         </div>
       </section>
 

@@ -68,6 +68,32 @@ export function verifyGateToken(token: string | undefined | null): boolean {
   return timingSafeStringCompare(sig, expectedSig);
 }
 
+export function issueSubjectUploadToken(ttlMs = 30 * 60 * 1000): string {
+  const exp = Date.now() + ttlMs;
+  const nonce = crypto.randomBytes(12).toString('hex');
+  const payload = `subject-upload.${exp}.${nonce}`;
+  const sig = crypto
+    .createHmac('sha256', EPHEMERAL_HMAC_SECRET)
+    .update(payload)
+    .digest('hex');
+  return `${payload}.${sig}`;
+}
+
+export function verifySubjectUploadToken(token: string | undefined | null): boolean {
+  if (!token) return false;
+  const parts = token.split('.');
+  if (parts.length !== 4) return false;
+  const [scope, expStr, nonce, sig] = parts;
+  if (scope !== 'subject-upload') return false;
+  const exp = Number(expStr);
+  if (!Number.isFinite(exp) || Date.now() > exp || !nonce || !sig) return false;
+  const expectedSig = crypto
+    .createHmac('sha256', EPHEMERAL_HMAC_SECRET)
+    .update(`${scope}.${expStr}.${nonce}`)
+    .digest('hex');
+  return timingSafeStringCompare(sig, expectedSig);
+}
+
 interface RateBucket {
   count: number;
   resetAt: number;

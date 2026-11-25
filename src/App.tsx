@@ -5,6 +5,7 @@ import { apiRequest } from './lib/api';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { DocumentPreviewModal } from './components/DocumentPreviewModal';
+import { SubjectUploadModal } from './components/SubjectUploadModal';
 import { HomePage } from './pages/HomePage';
 import { MaterialsPage } from './pages/MaterialsPage';
 import { SubjectDetailPage } from './pages/SubjectDetailPage';
@@ -71,6 +72,8 @@ function DarbarShell() {
   );
   const [searchSeed, setSearchSeed] = useState('');
   const [previewDoc, setPreviewDoc] = useState<DocumentItem | null>(null);
+  const [uploadSubject, setUploadSubject] = useState<SubjectItem | null>(null);
+  const [dataVersion, setDataVersion] = useState(0);
 
   const [bootstrap, setBootstrap] = useState<BootstrapPayload>({
     stats: { totalDocuments: 0, totalSubjects: 0, totalQuizzes: 0, totalStudents: 0 },
@@ -155,6 +158,7 @@ function DarbarShell() {
             onNavigate={navigate}
             onSearchSubmit={handleHeroSearch}
             onPreviewDocument={setPreviewDoc}
+            onUploadSubject={setUploadSubject}
           />
         )}
 
@@ -162,8 +166,10 @@ function DarbarShell() {
           <MaterialsPage
             subjects={bootstrap.subjects}
             initialQuery={searchSeed}
+            refreshKey={dataVersion}
             onNavigate={navigate}
             onPreviewDocument={setPreviewDoc}
+            onUploadSubject={setUploadSubject}
           />
         )}
 
@@ -171,8 +177,10 @@ function DarbarShell() {
           <SubjectDetailPage
             slug={routeState.param}
             subjects={bootstrap.subjects}
+            refreshKey={dataVersion}
             onNavigate={navigate}
             onPreviewDocument={setPreviewDoc}
+            onUploadSubject={setUploadSubject}
           />
         )}
 
@@ -203,6 +211,15 @@ function DarbarShell() {
       <Footer homepage={bootstrap.homepage} onNavigate={navigate} />
 
       <DocumentPreviewModal doc={previewDoc} onClose={() => setPreviewDoc(null)} />
+      <SubjectUploadModal
+        subject={uploadSubject}
+        onClose={() => setUploadSubject(null)}
+        onUploaded={() => {
+          setDataVersion((v) => v + 1);
+          void loadBootstrap();
+        }}
+        onViewSubject={(slug) => navigate('subject', slug)}
+      />
     </div>
   );
 }

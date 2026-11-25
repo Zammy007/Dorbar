@@ -5,6 +5,7 @@ import { publicRouter } from './server/routes/publicRoutes.ts';
 import { quizRouter } from './server/routes/quizRoutes.ts';
 import { studentRouter } from './server/routes/studentRoutes.ts';
 import { adminRouter } from './server/routes/adminRoutes.ts';
+import { subjectUploadRouter } from './server/routes/subjectUploadRoutes.ts';
 
 async function startServer() {
   const app = express();
@@ -28,6 +29,7 @@ async function startServer() {
   app.use('/api/quizzes', quizRouter);
   app.use('/api/student', studentRouter);
   app.use('/api/admin', adminRouter);
+  app.use('/api/subject-upload', subjectUploadRouter);
 
   // Express error handler (including Multer file size limits)
   app.use((err: any, _req: express.Request, res: express.Response, next: express.NextFunction) => {

@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Filter, RotateCcw, Search } from 'lucide-react';
+import { Eye, Filter, Lock, RotateCcw, Search, Upload } from 'lucide-react';
 import { apiRequest } from '../lib/api';
 import { DocumentCard } from '../components/DocumentCard';
+import { SubjectIcon } from '../components/SubjectIcon';
 import type { AppRoute, DocumentItem, SubjectItem } from '../types/darbar';
 
 interface MaterialsPageProps {
   subjects: SubjectItem[];
   initialQuery?: string;
+  refreshKey?: number;
   onNavigate: (route: AppRoute, param?: string) => void;
   onPreviewDocument: (doc: DocumentItem) => void;
+  onUploadSubject: (subject: SubjectItem) => void;
 }
 
 const FORMATS = ['all', 'PDF', 'TXT', 'PNG', 'JPG', 'WEBP', 'DOC', 'DOCX', 'PPT', 'PPTX'];
@@ -25,8 +28,10 @@ const CATEGORIES = [
 export function MaterialsPage({
   subjects,
   initialQuery = '',
+  refreshKey = 0,
   onNavigate,
   onPreviewDocument,
+  onUploadSubject,
 }: MaterialsPageProps) {
   const [query, setQuery] = useState(initialQuery);
   const [subject, setSubject] = useState('all');
@@ -80,7 +85,7 @@ export function MaterialsPage({
       void fetchDocuments();
     }, 180);
     return () => clearTimeout(timer);
-  }, [fetchDocuments]);
+  }, [fetchDocuments, refreshKey]);
 
   const resetFilters = () => {
     setQuery('');
@@ -104,8 +109,61 @@ export function MaterialsPage({
         </p>
       </div>
 
-      {/* Subject Quick Switcher */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
+      {/* Subject Directory with View & Password-Protected Upload */}
+      {subjects.length > 0 && (
+        <section aria-label="Subjects" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {subjects.map((s) => (
+            <article
+              key={s.id}
+              className="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col justify-between gap-3"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 text-[#0F2447] dark:text-teal-300 flex items-center justify-center shrink-0">
+                    <SubjectIcon name={s.icon} className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <h2 className="font-display text-sm font-bold text-slate-900 dark:text-white truncate">
+                      {s.name}
+                    </h2>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                      {s.bengaliName}
+                    </p>
+                  </div>
+                </div>
+                <span className="text-[11px] font-mono tabular-nums text-slate-500 dark:text-slate-400 shrink-0">
+                  {s.documentCount ?? 0} files
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => onNavigate('subject', s.slug)}
+                  aria-label={`View ${s.name} materials`}
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#0F2447] dark:bg-blue-600 text-white hover:bg-[#193666] dark:hover:bg-blue-500 transition-colors"
+                >
+                  <Eye className="w-3.5 h-3.5" aria-hidden="true" />
+                  <span>View</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onUploadSubject(s)}
+                  aria-label={`Upload to ${s.name} (password protected)`}
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-[#0D9488] hover:text-[#0D9488] dark:hover:border-teal-400 dark:hover:text-teal-300 transition-colors"
+                >
+                  <Upload className="w-3.5 h-3.5" aria-hidden="true" />
+                  <span>Upload</span>
+                  <Lock className="w-3 h-3 opacity-70" aria-hidden="true" />
+                </button>
+              </div>
+            </article>
+          ))}
+        </section>
+      )}
+
+      {/* Subject Quick Filter */}
+      <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={() => {
